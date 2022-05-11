@@ -13,6 +13,16 @@
     <facet type="Spring" name="Spring">
       <configuration />
     </facet>
+    <facet type="jpa" name="JPA">
+      <configuration>
+        <setting name="validation-enabled" value="true" />
+        <setting name="provider-name" value="Hibernate" />
+        <datasource-mapping>
+          <factory-entry name="Server" />
+        </datasource-mapping>
+        <naming-strategy-map />
+      </configuration>
+    </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
@@ -88,5 +98,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.xmlunit:xmlunit-core:2.6.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: javax.xml.bind:jaxb-api:2.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: javax.activation:javax.activation-api:1.2.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: mysql:mysql-connector-java:5.1.44" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-configuration-processor:2.1.4.RELEASE" level="project" />
   </component>
 </module>

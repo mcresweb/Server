@@ -1,0 +1,6 @@
+server:
+  port: 9093
+datasource:
+  username: ourlead
+  password: ourlead0412
+  url: jdbc:postgresql://localhost:5432/ourlead?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC&currentSchema=owas
