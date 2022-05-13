@@ -9,6 +9,10 @@ import java.sql.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.lang.reflect.Array;
+
+
+import Class.*;
 
 
 public class DataBaseUtil {
@@ -35,14 +39,57 @@ public class DataBaseUtil {
         }
     }
 
-    public static void initDataBase() throws ClassNotFoundException, SQLException {
+    public static void initDataBase() throws ClassNotFoundException, SQLException, NoSuchFieldException, IllegalAccessException {
         generateTable("Class.MCResUser");
         generateTable("Class.Category");
         generateTable("Class.Keyword");
         generateTable("Class.Catalogue");
+        //实验通用增删改查
+//        add("Class.MCResUser", new MCResUser("1", "1", "1", 1, 1, false, 1));
+//        add("Class.Category", new Category("1", "1", new byte[10]));
     }
 
-    public ResultSet add() {
+    public static ResultSet add(String className, Object object) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        //获取类名
+        String tableName = getClassName(className);
+        //获取所有属性名
+        HashMap<String, String> fileds = getFileds(className);
+
+        String valueContent = "";
+        String filedContent = "";
+        //获取对象值
+        int index = 0;
+        for (String key : fileds.keySet()
+        ) {
+            index++;
+
+            if (fileds.get(key).equals("String")) {
+            } else if (fileds.get(key).equals("int")) {
+                int value = object.getClass().getField(key).getInt(object);
+            } else if (fileds.get(key).equals("long")) {
+                long value = object.getClass().getField(key).getLong(object);
+            } else if (fileds.get(key).equals("boolean")) {
+                boolean value = object.getClass().getField(key).getBoolean(object);
+            } else if (fileds.get(key).equals("byte[]")) {
+                Array.newInstance(byte.class, Array.getLength(object.getClass().getField(key)));
+                Class c1 = object.getClass().getField(key).getClass();
+                c1.isArray();
+                byte[] value = new byte[Array.getLength(object.getClass().getField(key))];
+                System.arraycopy(object, 0, value, 0, Array.getLength(object.getClass().getField(key)));
+                System.out.println(value.toString());
+
+            } else {
+
+                continue;
+            }
+
+            if (index != fileds.size()) {
+                filedContent += ",";
+                valueContent += ",";
+            }
+        }
+        String sql = "insert into " + tableName + " (" + filedContent + ") value(" + valueContent + ");";
+
         return null;
     }
 
@@ -67,25 +114,55 @@ public class DataBaseUtil {
      * @throws SQLException
      */
     public static void generateTable(String name) throws ClassNotFoundException, SQLException {
-
-        HashMap<String, String> filedNames = new HashMap<>();
-        Class objectClass = Class.forName(name);
-        String[] args = objectClass.getName().split("\\.");
-
-        String className = args[args.length - 1];
+        String className = getClassName(name);
         if (checkTable(className)) {
             return;
         }
+        //创建表
+        Statement statement = connection.createStatement();
+        String Sql = getGenerateSQLString(name);
+        System.out.println(Sql);
+        statement.executeUpdate(Sql, 2);
 
+    }
 
+    public static boolean checkTable(String tableName) {
+        try {
+
+            String sql = "select * from information_schema.TABLES where TABLE_NAME = '" + tableName + "'";
+            Statement statement = connection.createStatement();
+            System.out.println(sql);
+            ResultSet resultSet = statement.executeQuery(sql);
+            if (resultSet.first())
+                return true;
+            else return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static String getClassName(String name) throws ClassNotFoundException {
+        Class objectClass = Class.forName(name);
+        String[] args = objectClass.getName().split("\\.");
+        return args[args.length - 1];
+    }
+
+    public static HashMap<String, String> getFileds(String className) throws ClassNotFoundException {
+        HashMap<String, String> filedNames = new HashMap<>();
+        Class objectClass = Class.forName(className);
         for (Field field :
                 objectClass.getFields()) {
+
             String[] filedContent = field.getGenericType().getTypeName().split("\\.");
             String filedName = filedContent[filedContent.length - 1];
             filedNames.put(field.getName(), filedName);
         }
-        Statement statement = connection.createStatement();
-        //创建表
+        return filedNames;
+    }
+
+    public static String getGenerateSQLString(String name) throws SQLException, ClassNotFoundException {
+
+        HashMap<String, String> filedNames = getFileds(name);
         String otherFiledContet = "";
         int index = 0;
         for (String key : filedNames.keySet()
@@ -123,29 +200,10 @@ public class DataBaseUtil {
             }
         }
 
-        String createTableSql = "CREATE TABLE `" + className + "` ("
+        return "CREATE TABLE `" + getClassName(name) + "` ("
                 + otherFiledContet
                 + ") ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
 
-        System.out.println(createTableSql);
-        statement.executeUpdate(createTableSql, 2);
-
     }
-
-    public static boolean checkTable(String tableName) {
-        try {
-
-            String sql = "select * from information_schema.TABLES where TABLE_NAME = '" + tableName + "'";
-            Statement statement = connection.createStatement();
-            System.out.println(sql);
-            ResultSet resultSet = statement.executeQuery(sql);
-            if (resultSet.first())
-                return true;
-            else return false;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
 
 }
