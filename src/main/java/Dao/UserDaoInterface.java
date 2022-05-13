@@ -1,6 +1,6 @@
 package Dao;
 
-import Class.User;
+import Class.MCResUser;
 
 public interface UserDaoInterface {
     /**
@@ -8,7 +8,7 @@ public interface UserDaoInterface {
      * @param password  密码
      * @return
      */
-    User addUser(String account, String password);
+    MCResUser addUser(String account, String password);
 
     /**
      * @param account  用户名
@@ -20,12 +20,12 @@ public interface UserDaoInterface {
      * @param user 用户
      * @return
      */
-    boolean updateUser(User user);
+    boolean updateUser(MCResUser user);
 
     /**
      * @param account 账户名
      * @return
      */
-    User getUser(String account);
+    MCResUser getUser(String account);
 
 }

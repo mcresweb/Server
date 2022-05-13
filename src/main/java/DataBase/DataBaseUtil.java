@@ -24,11 +24,9 @@ public class DataBaseUtil {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             //3、连接成功，数据库对象 Connection 代表数据库
-
             url = "jdbc:mysql://localhost:3306/mcresweb?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC&currentSchema=owas";
             username = "root";
             password = "";
-
             connection = DriverManager.getConnection(url, username, password);
             //4、执行sql对象 statement 执行sql的对象
 
@@ -38,76 +36,113 @@ public class DataBaseUtil {
     }
 
     public static void initDataBase() throws ClassNotFoundException, SQLException {
-
-
-        //5、执行sql的对象 去执行sql，可能存在结果，查看返回结果
-//        String sql = "SELECT* FROM `users`";
-//        Statement statement = connection.createStatement();
-//        ResultSet resultSet = statement.executeQuery(sql);//返回的结果集，结果集中封装了我们全部的查询出来的结果
-//        while (resultSet.next()) {
-//            System.out.println("id=" + resultSet.getObject("id"));
-//            System.out.println("name=" + resultSet.getObject("name"));
-//            System.out.println("pwd=" + resultSet.getObject("password"));
-//            System.out.println("email=" + resultSet.getObject("email"));
-//            System.out.println("birthday=" + resultSet.getObject("birthday"));
-//            System.out.println("--------------------------");
-//        }
-
-        //6、释放连接
-//        resultSet.close();
-//        statement.close();
-//        connection.close();
-        generateTable("Class.User");
+        generateTable("Class.MCResUser");
+        generateTable("Class.Category");
+        generateTable("Class.Keyword");
+        generateTable("Class.Catalogue");
     }
 
+    public ResultSet add() {
+        return null;
+    }
+
+    public ResultSet delete() {
+        return null;
+    }
+
+    public ResultSet update() {
+        return null;
+    }
+
+    public ResultSet select() {
+        return null;
+    }
+
+
+    /**
+     * 把一个类创建一张表存储在数据库中
+     *
+     * @param name 类的名称(包括包名)
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static void generateTable(String name) throws ClassNotFoundException, SQLException {
+
         HashMap<String, String> filedNames = new HashMap<>();
         Class objectClass = Class.forName(name);
         String[] args = objectClass.getName().split("\\.");
 
         String className = args[args.length - 1];
+        if (checkTable(className)) {
+            return;
+        }
+
+
         for (Field field :
                 objectClass.getFields()) {
-
             String[] filedContent = field.getGenericType().getTypeName().split("\\.");
             String filedName = filedContent[filedContent.length - 1];
-            filedNames.put(field.getName(),filedName);
-            System.out.println(field.getName() + " : " + filedName);
+            filedNames.put(field.getName(), filedName);
         }
         Statement statement = connection.createStatement();
+        //创建表
+        String otherFiledContet = "";
+        int index = 0;
+        for (String key : filedNames.keySet()
+        ) {
+            index++;
+            String filedType = "";
+            if (filedNames.get(key).equals("String")) {
+                filedType = " varchar";
+            } else if (filedNames.get(key).equals("int") || filedNames.get(key).equals("long")) {
+                filedType = " bigint";
+            } else if (filedNames.get(key).equals("boolean")) {
+                filedType = " boolean";
+            } else if (filedNames.get(key).equals("byte[]")) {
+                filedType = " binary";
+            } else {
+                System.out.println(key + " : " + filedNames.get(key));
+                continue;
+            }
+            otherFiledContet += key;
 
-    //创建表
-        String otherFiledContet="";
 
-        for (String key:filedNames.keySet()
-             ) {
+            if (!filedNames.get(key).equals("boolean")) {
+                otherFiledContet = otherFiledContet + filedType + "(255)";
 
+            } else {
+                otherFiledContet = otherFiledContet + filedType;
+            }
+
+
+            if (key.equals("id")) {
+                otherFiledContet = otherFiledContet + " PRIMARY KEY";
+            }
+            if (index != filedNames.size()) {
+                otherFiledContet += ",";
+            }
         }
+
         String createTableSql = "CREATE TABLE `" + className + "` ("
+                + otherFiledContet
+                + ") ENGINE=InnoDB  DEFAULT CHARSET=utf8;";
 
-                + "`id` int(11) NOT NULL AUTO_INCREMENT,"
-
-                + "`name` varchar(20) DEFAULT NULL,"
-
-                + "PRIMARY KEY (`id`)"
-
-                + ") ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;";
-
+        System.out.println(createTableSql);
         statement.executeUpdate(createTableSql, 2);
-
 
     }
 
-    public boolean checkTable(String tableName) {
+    public static boolean checkTable(String tableName) {
         try {
-            String sql = "SELECT 1 FROM ALL_ALL_TABLES WHERER TABLE_NAME =" + tableName;
+
+            String sql = "select * from information_schema.TABLES where TABLE_NAME = '" + tableName + "'";
             Statement statement = connection.createStatement();
+            System.out.println(sql);
             ResultSet resultSet = statement.executeQuery(sql);
             if (resultSet.first())
                 return true;
             else return false;
         } catch (Exception e) {
-            System.out.println("表不存在");
             return false;
         }
     }

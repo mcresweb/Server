@@ -1,10 +1,10 @@
 package Dao;
 
-import Class.User;
+import Class.MCResUser;
 
 public class UserDao implements UserDaoInterface {
     @Override
-    public User addUser(String account, String password) {
+    public MCResUser addUser(String account, String password) {
         return null;
     }
 
@@ -14,12 +14,12 @@ public class UserDao implements UserDaoInterface {
     }
 
     @Override
-    public User getUser(String account) {
+    public MCResUser getUser(String account) {
         return null;
     }
 
     @Override
-    public boolean updateUser(User user) {
+    public boolean updateUser(MCResUser user) {
         return false;
     }
 }
