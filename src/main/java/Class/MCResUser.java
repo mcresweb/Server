@@ -33,6 +33,15 @@ public class MCResUser {
      */
     public long createTime;
 
+    /**
+     * @param id 唯一标识符
+     * @param userName  用户名
+     * @param passWord  密码
+     * @param vipLevel  VIP等级
+     * @param vipExpire VIP经验值
+     * @param isAdmin   是否为管理员
+     * @param createTime    创建的时间
+     */
     public MCResUser(String id, String userName, String passWord, int vipLevel, int vipExpire, boolean isAdmin, long createTime) {
         this.id = id;
         this.userName = userName;
