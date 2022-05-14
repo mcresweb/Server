@@ -53,6 +53,8 @@ public class DataBaseUtil {
         generateTable("Class.Category");
         generateTable("Class.Keyword");
         generateTable("Class.Catalogue");
+        generateTable("Class.Essay");
+        generateTable("Class.Image");
 
     }
 
@@ -259,7 +261,6 @@ public class DataBaseUtil {
             } else if (filedNames.get(key).equals("byte[]")) {
                 filedType = " binary";
             } else {
-                System.out.println(key + " : " + filedNames.get(key));
                 continue;
             }
             otherFiledContet += key;
