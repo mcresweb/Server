@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
 
+import java.io.File;
 import java.sql.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.reflect.Array;
 
@@ -39,17 +41,31 @@ public class DataBaseUtil {
         }
     }
 
+    /**
+     * 初始化， 建表
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     public static void initDataBase() throws ClassNotFoundException, SQLException, NoSuchFieldException, IllegalAccessException {
         generateTable("Class.MCResUser");
         generateTable("Class.Category");
         generateTable("Class.Keyword");
         generateTable("Class.Catalogue");
-        //实验通用增删改查
-//        add("Class.MCResUser", new MCResUser("1", "1", "1", 1, 1, false, 1));
-//        add("Class.Category", new Category("1", "1", new byte[10]));
+
     }
 
-    public static ResultSet add(String className, Object object) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    /**
+     * @param className 类名（包括报名 例 Class.User）
+     * @param object 对象（随便一个实例）
+     * @return 是否成功增添一个数据对象到数据库
+     * @throws ClassNotFoundException
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     * @throws SQLException
+     */
+    public static boolean add(String className, Object object) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
         //获取类名
         String tableName = getClassName(className);
         //获取所有属性名
@@ -64,45 +80,110 @@ public class DataBaseUtil {
             index++;
 
             if (fileds.get(key).equals("String")) {
+                String value = object.getClass().getField(key).get(object).toString();
+                filedContent += key;
+                valueContent += "'" + value + "'";
             } else if (fileds.get(key).equals("int")) {
                 int value = object.getClass().getField(key).getInt(object);
+                filedContent += key;
+                valueContent += value;
             } else if (fileds.get(key).equals("long")) {
                 long value = object.getClass().getField(key).getLong(object);
+                filedContent += key;
+                valueContent += value;
             } else if (fileds.get(key).equals("boolean")) {
                 boolean value = object.getClass().getField(key).getBoolean(object);
+                filedContent += key;
+                valueContent += value;
             } else if (fileds.get(key).equals("byte[]")) {
-                Array.newInstance(byte.class, Array.getLength(object.getClass().getField(key)));
-                Class c1 = object.getClass().getField(key).getClass();
-                c1.isArray();
-                byte[] value = new byte[Array.getLength(object.getClass().getField(key))];
-                System.arraycopy(object, 0, value, 0, Array.getLength(object.getClass().getField(key)));
-                System.out.println(value.toString());
-
+                Object obj = object.getClass().getField(key).get(object);
+                Array.newInstance(byte.class, Array.getLength(obj));
+                byte[] value = new byte[Array.getLength(obj)];
+                System.arraycopy(obj, 0, value, 0, Array.getLength(obj));
+                String valueString = new String(value);
+                filedContent += key;
+                valueContent = "'" + valueString + "'";
             } else {
-
                 continue;
             }
-
             if (index != fileds.size()) {
                 filedContent += ",";
                 valueContent += ",";
             }
         }
-        String sql = "insert into " + tableName + " (" + filedContent + ") value(" + valueContent + ");";
-
-        return null;
+        String sql = "insert into " + tableName + " (" + filedContent + ") value (" + valueContent + ");";
+        Statement statement = connection.createStatement();
+        System.out.println(sql);
+        return statement.execute(sql);
     }
 
-    public ResultSet delete() {
-        return null;
+    public static boolean delete(String className, String id) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+        //获取类名
+        String tableName = getClassName(className);
+        //获取所有属性名
+        String sql = "DELETE FROM " + tableName + " WHERE id='" + id + "' ;";
+        Statement statement = connection.createStatement();
+        System.out.println(sql);
+        return statement.execute(sql);
     }
 
-    public ResultSet update() {
-        return null;
+    public static boolean update(String className, Object object) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException, SQLException {
+        //获取类名
+        String tableName = getClassName(className);
+        //获取所有属性名
+        HashMap<String, String> fileds = getFileds(className);
+
+        String id = "";
+        String content = "";
+        //获取对象值
+        int index = 0;
+        for (String key : fileds.keySet()
+        ) {
+            index++;
+            if (key.equals("id")) {
+                id = object.getClass().getField(key).get(object).toString();
+                continue;
+            }
+            if (fileds.get(key).equals("String")) {
+                String value = object.getClass().getField(key).get(object).toString();
+                content += key + "= '" + value + "'";
+            } else if (fileds.get(key).equals("int")) {
+                int value = object.getClass().getField(key).getInt(object);
+                content += key + "= " + value;
+            } else if (fileds.get(key).equals("long")) {
+                long value = object.getClass().getField(key).getLong(object);
+                content += key + "= " + value;
+            } else if (fileds.get(key).equals("boolean")) {
+                boolean value = object.getClass().getField(key).getBoolean(object);
+                content += key + "= " + value;
+            } else if (fileds.get(key).equals("byte[]")) {
+                Object obj = object.getClass().getField(key).get(object);
+                Array.newInstance(byte.class, Array.getLength(obj));
+                byte[] value = new byte[Array.getLength(obj)];
+                System.arraycopy(obj, 0, value, 0, Array.getLength(obj));
+                String valueString = new String(value);
+                content += key + "= '" + valueString + "'";
+            } else {
+                continue;
+            }
+            if (index != fileds.size()) {
+                content += ",";
+            }
+        }
+
+        String sql = "update " + tableName + " set " + content + "where id = '" + id + "';";
+        System.out.println(sql);
+
+        Statement statement = connection.createStatement();
+        return statement.execute(sql);
     }
 
-    public ResultSet select() {
-        return null;
+    public static ResultSet select(String className, String id) throws ClassNotFoundException, SQLException {
+        String tableName = getClassName(className);
+        String sql = "SELECT * FROM " + tableName + " WHERE id= '" + id + "'";
+        Statement statement = connection.createStatement();
+        System.out.println(sql);
+        return statement.executeQuery(sql);
     }
 
 
