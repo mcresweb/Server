@@ -14,10 +14,10 @@ import java.util.UUID;
 
 @SpringBootApplication
 public class Main {
-    public static void main(String[] args) throws SQLException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException, InstantiationException {
         SpringApplication.run(Main.class, args);
         DataBaseUtil.initDataBase();
         UserDao userDao = new UserDao();
-        userDao.addUser("wula", "ceshimima");
+        userDao.getUser("4117631eadb04de3b1e5a57933956fa3");
     }
 }

@@ -9,4 +9,7 @@ public interface UserControllerInterface {
 
     void register(String username,String password,String email,String code);
 
+    void info(String id);
+
+    void me();
 }

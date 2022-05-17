@@ -28,5 +28,6 @@ public class Category {
         this.image = image;
     }
 
-   
+    public Category() {
+    }
 }

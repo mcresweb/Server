@@ -52,5 +52,7 @@ public class MCResUser {
         this.createTime = createTime;
     }
 
-   
+
+    public MCResUser() {
+    }
 }

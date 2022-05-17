@@ -23,4 +23,7 @@ public class Essay {
         this.type = type;
         this.image = image;
     }
+
+    public Essay() {
+    }
 }

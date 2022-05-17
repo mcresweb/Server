@@ -21,12 +21,14 @@ public class UserDao implements UserDaoInterface {
     }
 
     @Override
-    public MCResUser getUser(String account) {
-        return null;
+    public MCResUser getUser(String id) throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+        return (MCResUser) DataBaseUtil.select("Class.MCResUser", id);
+
     }
 
     @Override
     public boolean updateUser(MCResUser user) {
+
         return false;
     }
 }

@@ -28,6 +28,6 @@ public interface UserDaoInterface {
      * @param account 账户名
      * @return
      */
-    MCResUser getUser(String account);
+    MCResUser getUser(String account) throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchFieldException;
 
 }

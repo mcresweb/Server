@@ -43,6 +43,7 @@ public class DataBaseUtil {
 
     /**
      * 初始化， 建表
+     *
      * @throws ClassNotFoundException
      * @throws SQLException
      * @throws NoSuchFieldException
@@ -60,7 +61,7 @@ public class DataBaseUtil {
 
     /**
      * @param className 类名（包括报名 例 Class.User）
-     * @param object 对象（随便一个实例）
+     * @param object    对象（随便一个实例）
      * @return 是否成功增添一个数据对象到数据库
      * @throws ClassNotFoundException
      * @throws NoSuchFieldException
@@ -180,12 +181,39 @@ public class DataBaseUtil {
         return statement.execute(sql);
     }
 
-    public static ResultSet select(String className, String id) throws ClassNotFoundException, SQLException {
+    public static Object select(String className, String id) throws ClassNotFoundException, SQLException, IllegalAccessException, InstantiationException, NoSuchFieldException {
         String tableName = getClassName(className);
         String sql = "SELECT * FROM " + tableName + " WHERE id= '" + id + "'";
         Statement statement = connection.createStatement();
         System.out.println(sql);
-        return statement.executeQuery(sql);
+
+        Object object = Class.forName(className).newInstance();
+
+        ResultSet resultSet = statement.executeQuery(sql);
+
+        HashMap<String, String> fileds = getFileds(className);
+
+        resultSet.next();
+
+        for (String key : fileds.keySet()
+        ) {
+            if (fileds.get(key).equals("String")) {
+                object.getClass().getField(key).set(object, resultSet.getString(key));
+            } else if (fileds.get(key).equals("int")) {
+                object.getClass().getField(key).set(object, resultSet.getInt(key));
+            } else if (fileds.get(key).equals("long")) {
+                object.getClass().getField(key).set(object, resultSet.getLong(key));
+            } else if (fileds.get(key).equals("boolean")) {
+                object.getClass().getField(key).set(object, resultSet.getBoolean(key));
+            } else if (fileds.get(key).equals("byte[]")) {
+
+                object.getClass().getField(key).set(object, resultSet.getString(key).getBytes());
+            } else {
+                continue;
+            }
+        }
+        return object;
+
     }
 
 

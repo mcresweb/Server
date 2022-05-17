@@ -27,5 +27,6 @@ public class Catalogue {
         this.categories = categories;
     }
 
-   
+    public Catalogue() {
+    }
 }

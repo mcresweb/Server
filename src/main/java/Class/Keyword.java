@@ -35,5 +35,6 @@ public class Keyword {
         UserId = userId;
     }
 
-  
+    public Keyword() {
+    }
 }

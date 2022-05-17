@@ -13,4 +13,7 @@ public class Image {
         this.target = target;
         this.targetId = targetId;
     }
+
+    public Image() {
+    }
 }
