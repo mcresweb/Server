@@ -1,4 +1,4 @@
-package Class;
+package Main.Class;
 
 public class Keyword {
     /**

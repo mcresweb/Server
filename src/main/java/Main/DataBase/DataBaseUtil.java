@@ -1,20 +1,14 @@
-package DataBase;
+package Main.DataBase;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
 
-import java.io.File;
 import java.sql.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.lang.reflect.Array;
-
-
-import Class.*;
 
 
 public class DataBaseUtil {
@@ -50,17 +44,17 @@ public class DataBaseUtil {
      * @throws IllegalAccessException
      */
     public static void initDataBase() throws ClassNotFoundException, SQLException, NoSuchFieldException, IllegalAccessException {
-        generateTable("Class.MCResUser");
-        generateTable("Class.Category");
-        generateTable("Class.Keyword");
-        generateTable("Class.Catalogue");
-        generateTable("Class.Essay");
-        generateTable("Class.Image");
+        generateTable("Main.Class.MCResUser");
+        generateTable("Main.Class.Category");
+        generateTable("Main.Class.Keyword");
+        generateTable("Main.Class.Catalogue");
+        generateTable("Main.Class.Essay");
+        generateTable("Main.Class.Image");
 
     }
 
     /**
-     * @param className 类名（包括报名 例 Class.User）
+     * @param className 类名（包括报名 例 Main.Class.User）
      * @param object    对象（随便一个实例）
      * @return 是否成功增添一个数据对象到数据库
      * @throws ClassNotFoundException
@@ -181,19 +175,19 @@ public class DataBaseUtil {
         return statement.execute(sql);
     }
 
-    public static Object select(String className, String id) throws ClassNotFoundException, SQLException, IllegalAccessException, InstantiationException, NoSuchFieldException {
+    public static Object selectFromAttribute(String className, String attribute, String value) throws ClassNotFoundException, SQLException, IllegalAccessException, InstantiationException, NoSuchFieldException {
         String tableName = getClassName(className);
-        String sql = "SELECT * FROM " + tableName + " WHERE id= '" + id + "'";
+        String sql = "SELECT * FROM " + tableName + " WHERE " + attribute + "= '" + value + "'";
         Statement statement = connection.createStatement();
         System.out.println(sql);
-
-        Object object = Class.forName(className).newInstance();
-
         ResultSet resultSet = statement.executeQuery(sql);
-
+        if (!resultSet.next()) {
+            return null;
+        }
+        Object object = Class.forName(className).newInstance();
         HashMap<String, String> fileds = getFileds(className);
 
-        resultSet.next();
+        ;
 
         for (String key : fileds.keySet()
         ) {
@@ -206,7 +200,6 @@ public class DataBaseUtil {
             } else if (fileds.get(key).equals("boolean")) {
                 object.getClass().getField(key).set(object, resultSet.getBoolean(key));
             } else if (fileds.get(key).equals("byte[]")) {
-
                 object.getClass().getField(key).set(object, resultSet.getString(key).getBytes());
             } else {
                 continue;

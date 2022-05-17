@@ -1,6 +1,5 @@
-package Class;
+package Main.Class;
 
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Essay {
